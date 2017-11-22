@@ -1,0 +1,39 @@
+{
+  "name": "nock-utils",
+  "version": "1.0.0",
+  "description": "Utility tools to simplify recording and playing back http requests during tests",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -r ts-node/register src/**/*.test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/comparaonline/nock-utils.git"
+  },
+  "keywords": [
+    "nock"
+  ],
+  "author": "Lisandro Pavetti <lpavetti@comparaonline.com> (https://github.com/lisandrop)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/comparaonline/nock-utils/issues"
+  },
+  "homepage": "https://github.com/comparaonline/nock-utils#readme",
+  "devDependencies": {
+    "@types/chai": "^4.0.4",
+    "@types/jsonfile": "^4.0.1",
+    "@types/mocha": "^2.2.44",
+    "@types/nock": "^8.2.1",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
+    "nock": "^9.1.0",
+    "ts-node": "^3.3.0",
+    "tslint": "^5.8.0",
+    "tslint-config-airbnb": "^5.3.0",
+    "typescript": "^2.6.1"
+  },
+  "dependencies": {
+    "jsonfile": "^4.0.0",
+    "rest": "^2.0.0"
+  }
+}
