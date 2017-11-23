@@ -1,0 +1,116 @@
+import { expect } from 'chai';
+import { HttpRecorder } from '../HttpRecorder';
+import * as fs from 'fs';
+import * as rest from 'rest';
+const express = require('express')
+const app = express()
+
+const TEST_CASSETTE = `${__dirname}/test_cassette.json`;
+const TEST_URL = 'http://127.0.0.1:3000';
+
+function startServer() {
+  app.get('/', (req, res) => res.send('result_ok'))
+  const server = app.listen(3000, () => {});
+
+  return server;
+}
+
+async function createCassette() {
+  const recorder = new HttpRecorder(TEST_CASSETTE);
+    recorder.start();
+    return rest(TEST_URL).then((result) => {
+      recorder.stop();
+      return result;
+    });
+}
+
+let server;
+
+describe('HttpRecorder', () => {
+  
+  before(() => {
+    server = startServer();
+  });
+
+  after(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    if (fs.existsSync(TEST_CASSETTE)) {
+      fs.unlinkSync(TEST_CASSETTE);
+    }
+  });
+
+  it('should instantiate a HttpRecorder and set the path', () => {
+    const recorder = new HttpRecorder(TEST_CASSETTE);
+    expect(recorder.getPath()).to.equal(TEST_CASSETTE);
+  });
+
+  it('should return false if a cassette is not present', () => {
+    const recorder = new HttpRecorder(TEST_CASSETTE);
+    expect(recorder.isCassetteLoaded()).to.be.false;
+  });
+
+  it('should record a new cassette when started and be inactive when recording', async () => {
+    let fileExists = fs.existsSync(TEST_CASSETTE);
+    expect(fileExists).to.be.false;
+
+    const recorder = new HttpRecorder(TEST_CASSETTE);
+    recorder.start();
+    expect(recorder.isActive()).to.be.false;
+
+    const result = await rest(TEST_URL);
+    recorder.stop();
+    
+    fileExists = fs.existsSync(TEST_CASSETTE);
+    expect(fileExists).to.be.true;
+  });
+
+  it('should return true when a cassette is loaded', async () => {
+    const recorder = new HttpRecorder(TEST_CASSETTE);
+    recorder.start();
+    expect(recorder.isActive()).to.be.false;
+    
+    await rest(TEST_URL);
+    
+    recorder.stop();
+    expect(recorder.isCassetteLoaded()).to.be.true;
+  });
+
+  it('should be active when playing back a cassette', async () => {
+    const recorder = new HttpRecorder(TEST_CASSETTE);
+    recorder.start();
+    expect(recorder.isActive()).to.be.false;
+  
+    await rest(TEST_URL);
+    
+    recorder.stop();
+    expect(recorder.isActive()).to.be.false;
+    recorder.start();
+    expect(recorder.isActive()).to.be.true;
+    
+    await rest(TEST_URL);
+    
+    recorder.stop();
+    expect(recorder.isActive()).to.be.false;
+  });
+
+  it('should play a previously stored cassette without overwriting', async () => {
+    const result = await createCassette();
+
+    const startCassetteStats = fs.statSync(TEST_CASSETTE);
+    const originalModified = startCassetteStats.mtime.getTime();
+
+    const recorder = new HttpRecorder(TEST_CASSETTE);
+    recorder.start();
+
+    await rest(TEST_URL);
+    recorder.stop();
+
+    const stopCassetteStats = fs.statSync(TEST_CASSETTE);
+    const lastModified = stopCassetteStats.mtime.getTime();
+
+    expect(originalModified).to.equal(lastModified);
+  });
+});
