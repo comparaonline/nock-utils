@@ -7,9 +7,10 @@ const app = express()
 
 const TEST_CASSETTE = `${__dirname}/test_cassette.json`;
 const TEST_URL = 'http://127.0.0.1:3000';
+const TEST_RESULT= 'result_ok';
 
 function startServer() {
-  app.get('/', (req, res) => res.send('result_ok'))
+  app.get('/', (req, res) => res.send(TEST_RESULT))
   const server = app.listen(3000, () => {});
 
   return server;
@@ -65,6 +66,9 @@ describe('HttpRecorder', () => {
     
     fileExists = fs.existsSync(TEST_CASSETTE);
     expect(fileExists).to.be.true;
+
+    const testCassette = JSON.parse(fs.readFileSync(TEST_CASSETTE, 'utf8'));
+    expect(testCassette[0].response).to.equal(TEST_RESULT);
   });
 
   it('should return true when a cassette is loaded', async () => {
@@ -97,7 +101,7 @@ describe('HttpRecorder', () => {
   });
 
   it('should play a previously stored cassette without overwriting', async () => {
-    const result = await createCassette();
+    await createCassette();
 
     const startCassetteStats = fs.statSync(TEST_CASSETTE);
     const originalModified = startCassetteStats.mtime.getTime();
@@ -112,5 +116,8 @@ describe('HttpRecorder', () => {
     const lastModified = stopCassetteStats.mtime.getTime();
 
     expect(originalModified).to.equal(lastModified);
+    
+    const testCassette = JSON.parse(fs.readFileSync(TEST_CASSETTE, 'utf8'));
+    expect(testCassette[0].response).to.equal(TEST_RESULT);
   });
 });
