@@ -1,8 +1,9 @@
 {
   "name": "nock-utils",
-  "version": "1.0.0",
+  "version": "0.1.1",
   "description": "Utility tools to simplify recording and playing back http requests during tests",
-  "main": "index.js",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
     "test": "mocha -r ts-node/register src/**/*.test.ts"
   },
