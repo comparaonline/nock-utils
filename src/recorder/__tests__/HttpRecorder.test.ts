@@ -2,12 +2,13 @@ import { expect } from 'chai';
 import { HttpRecorder } from '../HttpRecorder';
 import * as fs from 'fs';
 import * as rest from 'rest';
-const express = require('express')
+import * as express from 'express';
+
 const app = express()
 
 const TEST_CASSETTE = `${__dirname}/test_cassette.json`;
 const TEST_URL = 'http://127.0.0.1:3000';
-const TEST_RESULT= 'result_ok';
+const TEST_RESULT = 'result_ok';
 
 function startServer() {
   app.get('/', (req, res) => res.send(TEST_RESULT))
