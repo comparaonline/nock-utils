@@ -1,10 +1,12 @@
 {
   "name": "nock-utils",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Utility tools to simplify recording and playing back http requests during tests",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
+    "prepublish": "yarn compile",
+    "compile": "tsc --outDir ./build",
     "test": "mocha -r ts-node/register src/**/*.test.ts"
   },
   "repository": {
