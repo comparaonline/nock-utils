@@ -7,8 +7,10 @@ import * as express from 'express';
 const app = express()
 
 const TEST_CASSETTE = `${__dirname}/test_cassette.json`;
+const TEST_CASSETTE_DUPLICATE = `${__dirname}/test_cassette_duplicate.json`;
 const TEST_URL = 'http://127.0.0.1:3000';
 const TEST_RESULT = 'result_ok';
+const MAX_DUPLICATE_FILE_SIZE = 500;
 
 function startServer() {
   app.get('/', (req, res) => res.send(TEST_RESULT))
@@ -120,5 +122,36 @@ describe('HttpRecorder', () => {
     
     const testCassette = JSON.parse(fs.readFileSync(TEST_CASSETTE, 'utf8'));
     expect(testCassette[0].response).to.equal(TEST_RESULT);
+  });
+});
+
+describe('Restrict Content by File', () => {
+  before(() => {
+    server = startServer();
+  });
+
+  after(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    if (fs.existsSync(TEST_CASSETTE_DUPLICATE)) {
+      fs.unlinkSync(TEST_CASSETTE_DUPLICATE);
+    }
+  });
+  
+  it('should validate the test cassette does not exist', async () => {
+    let fileExistsInitial = fs.existsSync(TEST_CASSETTE_DUPLICATE);
+    expect(fileExistsInitial).to.be.false;
+  });
+
+  it('should create a file and write content without previous tests', async () => {
+    const recorder = new HttpRecorder(TEST_CASSETTE_DUPLICATE);
+    recorder.start();
+    const result = await rest(TEST_URL);
+    recorder.stop();
+
+    const cassetteStats = fs.statSync(TEST_CASSETTE_DUPLICATE);
+    expect(cassetteStats.size).lt(MAX_DUPLICATE_FILE_SIZE);
   });
 });

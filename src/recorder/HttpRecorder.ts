@@ -69,6 +69,7 @@ export class HttpRecorder {
     const calls = nock.recorder.play();
 
     jsonfile.writeFileSync(this.path, calls, WRITE_OPTIONS);
+    nock.recorder.clear();
   }
 
   isCassetteLoaded(): boolean {
