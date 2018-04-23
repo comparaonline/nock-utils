@@ -140,17 +140,16 @@ describe('Restrict Content by File', () => {
     }
   });
   
-  it('should create a file and write content without previous tests', async () => {
+  it('should validate the test cassette does not exist', async () => {
     let fileExistsInitial = fs.existsSync(TEST_CASSETTE_DUPLICATE);
     expect(fileExistsInitial).to.be.false;
+  });
 
+  it('should create a file and write content without previous tests', async () => {
     const recorder = new HttpRecorder(TEST_CASSETTE_DUPLICATE);
     recorder.start();
     const result = await rest(TEST_URL);
     recorder.stop();
-
-    let fileExists = fs.existsSync(TEST_CASSETTE_DUPLICATE);
-    expect(fileExists).to.be.true;
 
     const cassetteStats = fs.statSync(TEST_CASSETTE_DUPLICATE);
     expect(cassetteStats.size).lt(MAX_DUPLICATE_FILE_SIZE);
