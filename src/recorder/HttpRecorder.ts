@@ -12,7 +12,7 @@ export class HttpRecorder {
   private path: string;
 
   /**
-   * Constructs an HttpRecorder with the path of the cassette to load 
+   * Constructs an HttpRecorder with the path of the cassette to load
    * or save to.
    * @param path The path to the cassette
    */
@@ -21,15 +21,17 @@ export class HttpRecorder {
   }
 
   /**
-   * Start will record all http activity to the cassette if it does not 
+   * Start will record all http activity to the cassette if it does not
    * exist or playback a previous http requests if a cassette is present.
-   * 
+   *
    * Important: Make sure to call @method stop after.
    */
-  start() {
+  start(...allowedHosts: (string | RegExp)[]) {
     const isLoaded = this.isCassetteLoaded();
 
     if (isLoaded) {
+      nock.disableNetConnect();
+      allowedHosts.forEach(host => nock.enableNetConnect(host));
       this.play();
     } else {
       this.record();
@@ -37,8 +39,8 @@ export class HttpRecorder {
   }
 
   /**
-   * Stop should be called after @method start 
-   * It will write to the cassette file if it does not exist and 
+   * Stop should be called after @method start
+   * It will write to the cassette file if it does not exist and
    * restore nock to avoid intercepting future http requests.
    */
   stop() {
@@ -48,6 +50,8 @@ export class HttpRecorder {
       this.writeToFile();
     }
 
+    nock.cleanAll();
+    nock.enableNetConnect();
     nock.restore();
   }
 
