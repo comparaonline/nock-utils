@@ -31,7 +31,7 @@ async function createCassette() {
 let server;
 
 describe('HttpRecorder', () => {
-  
+
   before(() => {
     server = startServer();
   });
@@ -66,7 +66,7 @@ describe('HttpRecorder', () => {
 
     const result = await rest(TEST_URL);
     recorder.stop();
-    
+
     fileExists = fs.existsSync(TEST_CASSETTE);
     expect(fileExists).to.be.true;
 
@@ -78,9 +78,9 @@ describe('HttpRecorder', () => {
     const recorder = new HttpRecorder(TEST_CASSETTE);
     recorder.start();
     expect(recorder.isActive()).to.be.false;
-    
+
     await rest(TEST_URL);
-    
+
     recorder.stop();
     expect(recorder.isCassetteLoaded()).to.be.true;
   });
@@ -89,16 +89,16 @@ describe('HttpRecorder', () => {
     const recorder = new HttpRecorder(TEST_CASSETTE);
     recorder.start();
     expect(recorder.isActive()).to.be.false;
-  
+
     await rest(TEST_URL);
-    
+
     recorder.stop();
     expect(recorder.isActive()).to.be.false;
     recorder.start();
     expect(recorder.isActive()).to.be.true;
-    
+
     await rest(TEST_URL);
-    
+
     recorder.stop();
     expect(recorder.isActive()).to.be.false;
   });
@@ -119,9 +119,30 @@ describe('HttpRecorder', () => {
     const lastModified = stopCassetteStats.mtime.getTime();
 
     expect(originalModified).to.equal(lastModified);
-    
+
     const testCassette = JSON.parse(fs.readFileSync(TEST_CASSETTE, 'utf8'));
     expect(testCassette[0].response).to.equal(TEST_RESULT);
+  });
+
+  it('should allow changing the default recording options', async () => {
+    const EXPECTED_HEADERS = { 'content-length': 0, host: '127.0.0.1:3000' };
+    let fileExists = fs.existsSync(TEST_CASSETTE);
+    expect(fileExists).to.be.false;
+
+    const recorder = new HttpRecorder(TEST_CASSETTE);
+    recorder.start({
+      enable_reqheaders_recording: true
+    });
+    expect(recorder.isActive()).to.be.false;
+
+    const result = await rest(TEST_URL);
+    recorder.stop();
+
+    fileExists = fs.existsSync(TEST_CASSETTE);
+    expect(fileExists).to.be.true;
+
+    const testCassette = JSON.parse(fs.readFileSync(TEST_CASSETTE, 'utf8'));
+    expect(testCassette[0].reqheaders).to.deep.equal(EXPECTED_HEADERS);
   });
 });
 
@@ -139,7 +160,7 @@ describe('Restrict Content by File', () => {
       fs.unlinkSync(TEST_CASSETTE_DUPLICATE);
     }
   });
-  
+
   it('should validate the test cassette does not exist', async () => {
     let fileExistsInitial = fs.existsSync(TEST_CASSETTE_DUPLICATE);
     expect(fileExistsInitial).to.be.false;
