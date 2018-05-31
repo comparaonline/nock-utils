@@ -1,6 +1,6 @@
 {
   "name": "nock-utils",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Utility tools to simplify recording and playing back http requests during tests",
   "main": "build/index.js",
   "types": "build/index.d.ts",
