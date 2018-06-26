@@ -31,6 +31,7 @@
     "chai": "^4.1.2",
     "express": "^4.16.2",
     "mocha": "^4.0.1",
+    "rest": "^2.0.0",
     "ts-node": "^3.3.0",
     "tslint": "^5.8.0",
     "tslint-config-airbnb": "^5.3.0",
@@ -38,7 +39,6 @@
   },
   "dependencies": {
     "jsonfile": "^4.0.0",
-    "nock": "^9.1.0",
-    "rest": "^2.0.0"
+    "nock": "^9.1.0"
   }
 }
