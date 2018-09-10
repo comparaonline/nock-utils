@@ -37,6 +37,25 @@ rest('https://www.comparaonline.com').then((result) => {
 });
 ```
 
+## Ignoring certain urls
+
+In some cases maybe it's necessary to ignore some request recording, for example, socket.io functionalities.
+
+### Example
+
+```
+const nockUtils = require('nock-utils');
+const ignoredScopes = ['http://mysocketio.connection.local'];
+const recorder = new nockUtils.HttpRecorder('cassette.json', ignoredScopes);
+recorder.start();
+
+# Call http requests here, the ignored scopes will be omitted from writing.
+
+recorder.stop();
+```
+
+
+
 ## Installation
 
 With npm:

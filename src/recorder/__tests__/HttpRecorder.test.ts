@@ -10,14 +10,16 @@ const TEST_CASSETTE = `${__dirname}/test_cassette.json`;
 const TEST_CASSETTE_DUPLICATE = `${__dirname}/test_cassette_duplicate.json`;
 const TEST_URL = 'http://127.0.0.1:3000';
 const TEST_RESULT = 'result_ok';
+const TEST_RANDOM_URL = `${TEST_URL}/random`;
 const MAX_DUPLICATE_FILE_SIZE = 500;
 
-function startServer() {
-  app.get('/', (req, res) => res.send(TEST_RESULT))
-  const server = app.listen(3000, () => {});
-
-  return server;
-}
+const startServer = () => {
+  app.get('/', (req, res) => res.json(TEST_RESULT))
+  app.get('/random', (req, res) => res.json(
+    {magicNumber: Math.floor(Math.random() * 1000000)}
+  ));
+  return app.listen(3000, () => {});
+};
 
 async function createCassette() {
   const recorder = new HttpRecorder(TEST_CASSETTE);
@@ -143,6 +145,22 @@ describe('HttpRecorder', () => {
 
     const testCassette = JSON.parse(fs.readFileSync(TEST_CASSETTE, 'utf8'));
     expect(testCassette[0].reqheaders).to.deep.equal(EXPECTED_HEADERS);
+  });
+
+  it('should allow to blacklist certain scopes from recording', async () => {
+    const IGNORED_SCOPES = [TEST_URL];
+    const recorder = new HttpRecorder(TEST_CASSETTE, IGNORED_SCOPES);
+    recorder.start();
+    const firstResult = await rest(TEST_RANDOM_URL);
+    const firstNumber = JSON.parse(firstResult.entity).magicNumber;
+    recorder.stop();
+
+    recorder.start();
+    const secondResult = await rest(TEST_RANDOM_URL);
+    const secondNumber = JSON.parse(secondResult.entity).magicNumber;
+    recorder.stop();
+    
+    expect(firstNumber).to.not.be.eql(secondNumber);
   });
 });
 
