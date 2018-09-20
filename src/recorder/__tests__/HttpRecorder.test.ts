@@ -175,4 +175,16 @@ describe('Restrict Content by File', () => {
     const cassetteStats = fs.statSync(TEST_CASSETTE_DUPLICATE);
     expect(cassetteStats.size).lt(MAX_DUPLICATE_FILE_SIZE);
   });
+
+  it('fails if all cassettes are required to play and one wasnt used', async () => {
+    const recorder = new HttpRecorder(TEST_CASSETTE);
+    recorder.start();
+    await rest(TEST_URL);
+    await rest(TEST_URL);
+    recorder.stop();
+
+    recorder.start();
+    await rest(TEST_URL);
+    expect(() => recorder.stop(true)).to.throw();
+  });
 });
