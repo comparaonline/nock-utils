@@ -1,6 +1,7 @@
 import * as nock from 'nock';
 import * as fs from 'fs';
 import * as jsonfile from 'jsonfile';
+import { inspect } from 'util';
 
 export interface RecordOptions {
   dont_print: boolean;
@@ -57,14 +58,20 @@ export class HttpRecorder {
    * It will write to the cassette file if it does not exist and
    * restore nock to avoid intercepting future http requests.
    */
-  stop() {
+  stop(checkAllRan = false) {
     const isLoaded = this.isCassetteLoaded();
 
     if (!isLoaded) {
       this.writeToFile();
     }
-
-    nock.restore();
+    try {
+      if (checkAllRan && !nock.isDone()) {
+        const pending = inspect(nock.pendingMocks(), false, 3, false);
+        throw new Error(`The following mocks didn't run: ${pending}`)
+      }
+    } finally {
+      nock.restore();
+    }
   }
 
   private record(options: RecordOptions) {

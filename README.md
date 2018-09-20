@@ -37,6 +37,17 @@ rest('https://www.comparaonline.com').then((result) => {
 });
 ```
 
+## Testing all mocks ran
+
+You can validate all mocks were executed by passing a true to the `nock.stop` method:
+```javascript
+async () => {
+  recorder.start();
+  await rest('https://www.comparaonline.com');
+  recorder.stop(true); // This will throw if the cassette had more mocks than just that request.
+}
+```
+
 ## Installation
 
 With npm:
