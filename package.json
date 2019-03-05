@@ -24,11 +24,13 @@
   "homepage": "https://github.com/comparaonline/nock-utils#readme",
   "devDependencies": {
     "@types/chai": "^4.0.4",
+    "@types/chai-as-promised": "^7.1.0",
     "@types/express": "^4.0.39",
     "@types/jsonfile": "^4.0.1",
     "@types/mocha": "^2.2.44",
     "@types/nock": "^8.2.1",
     "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
     "express": "^4.16.2",
     "mocha": "^4.0.1",
     "rest": "^2.0.0",
