@@ -47,6 +47,7 @@ export class HttpRecorder {
     const recordOptions = { ...DEFAULT_RECORD_OPTIONS, ...options };
 
     if (isLoaded) {
+      nock.disableNetConnect();
       this.play();
     } else {
       this.record(recordOptions);
@@ -71,6 +72,7 @@ export class HttpRecorder {
       }
     } finally {
       nock.restore();
+      nock.enableNetConnect();
     }
   }
 
