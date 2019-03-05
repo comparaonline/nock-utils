@@ -158,7 +158,18 @@ describe('HttpRecorder', () => {
       await rest(EXAMPLE_URL);
       recorder.stop();
     })()).to.eventually.be.rejected;
-  })
+  });
+
+  it('allows connection to specific urls not included in the cassettes', async () => {
+    const recorder = new HttpRecorder(EMPTY_CASSETTE);
+
+    await expect((async () => {
+      recorder.start();
+      recorder.enableNetConnect('127.0.0.1');
+      await rest(TEST_URL);
+      recorder.stop();
+    })()).to.eventually.be.fulfilled;
+  });
 });
 
 describe('Restrict Content by File', () => {
