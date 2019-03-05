@@ -47,10 +47,24 @@ export class HttpRecorder {
     const recordOptions = { ...DEFAULT_RECORD_OPTIONS, ...options };
 
     if (isLoaded) {
+      nock.disableNetConnect();
       this.play();
     } else {
       this.record(recordOptions);
     }
+  }
+
+  /**
+   *
+   * Call this to enable connections to happen with specific hosts (if a host
+   * argument is provided) or with any reachable host when the recorder is in
+   * play mode.
+   * If a request is in the cassette, it will be returned from there, but if it
+   * isn't and netConnect was enabled it will be retrieved from the server.
+   * @param host Optional The host or IP that will be enabled (can be a regexp)
+   */
+  enableNetConnect(host?: string|RegExp) {
+    nock.enableNetConnect(host);
   }
 
   /**
@@ -71,6 +85,8 @@ export class HttpRecorder {
       }
     } finally {
       nock.restore();
+      nock.cleanAll();
+      this.enableNetConnect();
     }
   }
 

@@ -1,14 +1,19 @@
-import { expect } from 'chai';
+import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
 import { HttpRecorder } from '../HttpRecorder';
 import * as fs from 'fs';
 import * as rest from 'rest';
 import * as express from 'express';
 
+chai.use(chaiAsPromised);
+const { expect } = chai;
 const app = express()
 
 const TEST_CASSETTE = `${__dirname}/test_cassette.json`;
 const TEST_CASSETTE_DUPLICATE = `${__dirname}/test_cassette_duplicate.json`;
+const EMPTY_CASSETTE = `${__dirname}/empty_cassette.json`;
 const TEST_URL = 'http://127.0.0.1:3000';
+const EXAMPLE_URL = 'http://example.org';
 const TEST_RESULT = 'result_ok';
 const MAX_DUPLICATE_FILE_SIZE = 500;
 
@@ -143,6 +148,27 @@ describe('HttpRecorder', () => {
 
     const testCassette = JSON.parse(fs.readFileSync(TEST_CASSETTE, 'utf8'));
     expect(testCassette[0].reqheaders).to.deep.equal(EXPECTED_HEADERS);
+  });
+
+  it('fails if a url not included in the cassette is requested', async () => {
+    const recorder = new HttpRecorder(EMPTY_CASSETTE);
+
+    await expect((async () => {
+      recorder.start();
+      await rest(EXAMPLE_URL);
+      recorder.stop();
+    })()).to.eventually.be.rejected;
+  });
+
+  it('allows connection to specific urls not included in the cassettes', async () => {
+    const recorder = new HttpRecorder(EMPTY_CASSETTE);
+
+    await expect((async () => {
+      recorder.start();
+      recorder.enableNetConnect('127.0.0.1');
+      await rest(TEST_URL);
+      recorder.stop();
+    })()).to.eventually.be.fulfilled;
   });
 });
 
