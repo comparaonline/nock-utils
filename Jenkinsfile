@@ -3,21 +3,37 @@ pipeline {
   options {
     timeout(time: 1, unit: 'HOURS')
   }
+  environment {
+    NODE_VERSION = readFile('.node-version').trim()
+  }
   stages {
-    stage('Prepare') {
+    stage("Install dependencies") {
       steps {
-        sh 'yarn install'
+        script {
+          nvm(env.NODE_VERSION) {
+            sh "yarn install"
+          }
+        }
       }
     }
     stage('Test') {
-        steps {
+      steps {
+        script {
+          nvm(env.NODE_VERSION) {
+            sh 'node --version'
             sh 'yarn test'
+          }
         }
+      }
     }
     stage('Build') {
-        steps {
+      steps {
+        script {
+          nvm(env.NODE_VERSION) {
             sh 'yarn compile'
+          }
         }
+      }
     }
     stage('Publish') {
       when {
@@ -33,15 +49,15 @@ pipeline {
 
 def published_version() {
   return sh (
-      script: 'npm view $(jq -r .name < package.json) version',
-      returnStdout: true
+    script: 'npm view $(jq -r .name < package.json) version',
+    returnStdout: true
   ).trim()
 }
 
 def package_version() {
   return sh (
-      script: 'jq -r .version < package.json',
-      returnStdout: true
+    script: 'jq -r .version < package.json',
+    returnStdout: true
   ).trim()
 }
 
