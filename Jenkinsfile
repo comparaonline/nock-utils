@@ -9,14 +9,14 @@ pipeline {
         sh 'yarn install'
       }
     }
-    stage('Build') {
-        steps {
-            sh 'yarn compile'
-        }
-    }
     stage('Test') {
         steps {
             sh 'yarn test'
+        }
+    }
+    stage('Build') {
+        steps {
+            sh 'yarn compile'
         }
     }
     stage('Publish') {
